@@ -72,6 +72,32 @@ export async function incomingSms(req: Request, res: Response) {
     msg.message(
       "We've received your request for help. Please share your live location: open the attachment (paperclip) and choose 'Location' → 'Share live location'. Reply with 'STOP' to cancel."
     )
+    // Fire-and-forget outbound WhatsApp/SMS prompt
+    ;(async () => {
+      try {
+        const tw = await import('../services/twilio')
+        const db = await import('../repo/db')
+        const body = "We've received your request for help. Please share your live location: paperclip → Location → Share live location. Reply STOP to cancel."
+        try {
+          const resp = await tw.sendWhatsAppMessage(from!, body)
+          // log outbound message
+          if (db && db.createWhatsappMessage) await db.createWhatsappMessage({ phone: from, type: 'outbound', content: { body, twilioSid: resp.sid }, timestamp: new Date() })
+        } catch (e) {
+          // fallback: try SMS
+          try {
+            const resp = await tw.sendSms(from!, body)
+            if (db && db.createWhatsappMessage) await db.createWhatsappMessage({ phone: from, type: 'outbound', content: { body, twilioSid: resp.sid }, timestamp: new Date() })
+          } catch (e2) {
+            // ignore send failures
+            // eslint-disable-next-line no-console
+            console.warn('Failed to send outbound message:', (e2 as Error).message)
+          }
+        }
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.warn('Outbound prompt failure:', (e as Error).message)
+      }
+    })()
   } else if (/^stop$/i.test(text)) {
     // Cancel any open incident for this phone
     ;(async () => {

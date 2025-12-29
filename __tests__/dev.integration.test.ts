@@ -37,4 +37,22 @@ describe('Dev telecom simulation endpoints', () => {
 
     spy.mockRestore()
   })
+
+  test('send-message sends outbound WhatsApp and logs it', async () => {
+    const tw = require('../src/services/twilio')
+    const db = require('../src/repo/db')
+    const spySend = jest.spyOn(tw, 'sendWhatsAppMessage').mockResolvedValue({ sid: 'SM123' })
+    const spyLog = jest.spyOn(db, 'createWhatsappMessage').mockResolvedValue({})
+
+    const res = await request(app).post('/dev/send-message').send({ phone: '+15550002222', body: 'Test outbound' })
+
+    expect(res.status).toBe(200)
+    expect(res.body).toHaveProperty('ok', true)
+    expect(res.body).toHaveProperty('sid', 'SM123')
+    expect(spySend).toHaveBeenCalled()
+    expect(spyLog).toHaveBeenCalled()
+
+    spySend.mockRestore()
+    spyLog.mockRestore()
+  })
 })

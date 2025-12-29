@@ -47,3 +47,27 @@ export async function mockSms(req: Request, res: Response) {
 
   return res.json({ simulated: true, inference })
 }
+
+export async function sendMessage(req: Request, res: Response) {
+  if (config.TELECOM_MODE !== 'MOCK') {
+    return res.status(403).json({ error: 'Mock telecom disabled' })
+  }
+
+  const phone = req.body.phone as string | undefined
+  const body = req.body.body as string | undefined
+  if (!phone || !body) return res.status(400).json({ error: 'phone and body are required' })
+
+  try {
+    const tw = await import('../services/twilio')
+    const db = await import('../repo/db')
+    const resp = await tw.sendWhatsAppMessage(phone, body)
+    if (db && db.createWhatsappMessage) {
+      await db.createWhatsappMessage({ phone, type: 'outbound', content: { body, twilioSid: resp.sid }, timestamp: new Date() })
+    }
+    return res.json({ ok: true, sid: resp.sid })
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error('Failed to send message (dev/send-message):', (e as Error).message)
+    return res.status(500).json({ error: 'send_failed' })
+  }
+}
