@@ -29,6 +29,66 @@ export async function initDb() {
   await database.collection('employers').createIndex({ employer_id: 1 }, { unique: true })
   await database.collection('verifications').createIndex({ worker_id: 1 })
   await database.collection('audit_logs').createIndex({ timestamp: -1 })
+  await database.collection('call_histories').createIndex({ phone: 1 })
+  await database.collection('call_histories').createIndex({ timestamp: -1 })
+  await database.collection('whatsapp_messages').createIndex({ phone: 1 })
+  await database.collection('whatsapp_messages').createIndex({ timestamp: -1 })
+  await database.collection('whatsapp_contacts').createIndex({ phone: 1 }, { unique: true })
+}
+
+export async function createCallHistory({ phone, inferredLocation, timestamp = new Date() }: any) {
+  const database = await connect()
+  if (!database) throw new Error('No MongoDB connection')
+  const doc = { phone, inferred_location: inferredLocation, timestamp }
+  await database.collection('call_histories').insertOne(doc)
+  return doc
+}
+
+export async function findLastCallByPhone(phone: string) {
+  const database = await connect()
+  if (!database) return null
+  return database.collection('call_histories').find({ phone }).sort({ timestamp: -1 }).limit(1).next()
+}
+
+// Generic call log (stores raw Twilio webhook data for auditing)
+export async function createCallLog({ phone, to, callSid, direction = 'inbound', body, timestamp = new Date() }: any) {
+  const database = await connect()
+  if (!database) throw new Error('No MongoDB connection')
+  const doc = { phone, to, call_sid: callSid, direction, body: body || null, timestamp }
+  await database.collection('call_logs').insertOne(doc)
+  return doc
+}
+
+// WhatsApp helpers
+export async function createWhatsappMessage({ phone, type, content, timestamp = new Date() }: any) {
+  const database = await connect()
+  if (!database) throw new Error('No MongoDB connection')
+  const doc = { phone, type, content, timestamp }
+  await database.collection('whatsapp_messages').insertOne(doc)
+  return doc
+}
+
+export async function upsertWhatsappContact({ phone, name, lastLocation, updatedAt = new Date() }: any) {
+  const database = await connect()
+  if (!database) throw new Error('No MongoDB connection')
+  const update: any = { phone, name: name || null, updated_at: updatedAt }
+  if (lastLocation) update.last_location = lastLocation
+  await database.collection('whatsapp_contacts').updateOne({ phone }, { $set: update }, { upsert: true })
+  return database.collection('whatsapp_contacts').findOne({ phone })
+}
+
+export async function findWhatsappContactByPhone(phone: string) {
+  const database = await connect()
+  if (!database) return null
+  return database.collection('whatsapp_contacts').findOne({ phone })
+}
+
+export async function createIncident({ id = uuid(), workerId, status = 'open', createdAt = new Date(), details = {} }: any) {
+  const database = await connect()
+  if (!database) throw new Error('No MongoDB connection')
+  const doc = { id, worker_id: workerId, status, details, created_at: createdAt }
+  await database.collection('incidents').insertOne(doc)
+  return doc
 }
 
 // Users

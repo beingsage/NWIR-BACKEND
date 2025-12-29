@@ -21,3 +21,6 @@ export const getAllIncidents = mongo.getAllIncidents
 export const getEmployerById = mongo.getEmployerById
 export const createAuditLog = mongo.createAuditLog
 export const getWorkerById = mongo.findUserById // alias
+export const createCallHistory = mongo.createCallHistory
+export const findLastCallByPhone = mongo.findLastCallByPhone
+export const createCallLog = mongo.createCallLog

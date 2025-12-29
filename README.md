@@ -34,3 +34,29 @@ Notes
 
 - Data is persisted to MongoDB when `MONGO_URI` is provided (recommended for dev/staging).
 - Replace with a production-grade DB setup and robust auth in production.
+
+WhatsApp Integration
+--------------------
+
+This project includes a simple WhatsApp Cloud API webhook receiver to capture incoming messages and live location shares.
+
+Environment variables:
+
+- `WHATSAPP_VERIFY_TOKEN` — verification token for the GET webhook handshake (set this in Meta app webhook settings)
+- `MONGO_URI` — to persist incoming messages/contacts to MongoDB (optional for tests, but required in production)
+
+Endpoints:
+
+- `GET /whatsapp` — webhook verification (Meta will call with `hub.verify_token` and `hub.challenge`)
+- `POST /whatsapp` — incoming message webhook (stores contact and message; a text `SOS` will create an incident)
+
+API Documentation
+-----------------
+
+A Swagger UI is available at `GET /docs` to explore and try API endpoints locally. It serves a minimal OpenAPI spec in `src/docs/openapi.json` and is intended for dev/testing purposes.
+
+Notes:
+
+- The handler stores messages in `whatsapp_messages` and contacts in `whatsapp_contacts` collections.
+- By default the webhook will not error when Mongo is not configured (useful for local tests/sandboxing).
+

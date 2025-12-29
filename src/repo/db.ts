@@ -20,3 +20,7 @@ export const getAllIncidents = db.getAllIncidents
 export const getEmployerById = db.getEmployerById
 export const createAuditLog = db.createAuditLog
 export const getWorkerById = db.findUserById // alias for existing function
+// Call history helpers
+export const createCallHistory = db.createCallHistory
+export const findLastCallByPhone = db.findLastCallByPhone
+export const createCallLog = db.createCallLog

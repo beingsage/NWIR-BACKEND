@@ -12,12 +12,15 @@
     "build": "tsc -p ."
   },
   "dependencies": {
+    "swagger-ui-express": "^4.6.3",
+    "dotenv": "^16.3.1",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "helmet": "^6.0.1",
     "jsonwebtoken": "^9.0.0",
     "mongodb": "^5.7.0",
+    "twilio": "^4.11.0",
     "uuid": "^9.0.0",
     "zod": "^3.22.2"
   },

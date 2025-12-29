@@ -9,4 +9,6 @@ module.exports = {
       tsconfig: 'tsconfig.json'
     }
   }
+  ,
+  testPathIgnorePatterns: ['/dist/']
 }
