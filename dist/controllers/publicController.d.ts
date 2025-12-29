@@ -1,0 +1,11 @@
+import type { Request, Response } from 'express';
+export declare function dashboardStats(_req: Request, res: Response): Promise<Response<any, Record<string, any>>>;
+export declare function workers(_req: Request, res: Response): Promise<Response<any, Record<string, any>>>;
+export declare function getWorker(req: Request, res: Response): Promise<Response<any, Record<string, any>>>;
+export declare function incidents(_req: Request, res: Response): Promise<Response<any, Record<string, any>>>;
+export declare function employers(_req: Request, res: Response): Promise<Response<any, Record<string, any>>>;
+export declare function contracts(_req: Request, res: Response): Promise<Response<any, Record<string, any>>>;
+export declare function verifications(_req: Request, res: Response): Promise<Response<any, Record<string, any>>>;
+export declare function tasks(_req: Request, res: Response): Promise<Response<any, Record<string, any>>>;
+export declare function auditLogs(_req: Request, res: Response): Promise<Response<any, Record<string, any>>>;
+export declare function exportData(req: Request, res: Response): Promise<Response<any, Record<string, any>>>;

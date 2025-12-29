@@ -1,0 +1,167 @@
+import { MongoClient, Db } from 'mongodb'
+import { v4 as uuid } from 'uuid'
+
+const MONGO_URI = process.env.MONGO_URI
+if (!MONGO_URI) {
+  // Do not throw at import time for tests; only throw if used without config
+  // throw new Error('MONGO_URI is required for MongoDB adapter')
+}
+
+let client: MongoClient | null = null
+let db: Db | null = null
+
+export async function connect() {
+  if (!MONGO_URI) return null
+  if (!client) {
+    client = new MongoClient(MONGO_URI)
+    await client.connect()
+    db = client.db()
+  }
+  return db
+}
+
+export async function initDb() {
+  const database = await connect()
+  if (!database) return
+
+  // Ensure indexes
+  await database.collection('users').createIndex({ email: 1 }, { unique: true })
+  await database.collection('employers').createIndex({ employer_id: 1 }, { unique: true })
+  await database.collection('verifications').createIndex({ worker_id: 1 })
+  await database.collection('audit_logs').createIndex({ timestamp: -1 })
+}
+
+// Users
+export async function createUser({ id = uuid(), name, email, passwordHash, role = 'worker' }: any) {
+  const database = await connect()
+  if (!database) throw new Error('No MongoDB connection')
+  const doc = { id, name, email, password_hash: passwordHash, role, created_at: new Date() }
+  const r = await database.collection('users').insertOne(doc)
+  return { ...doc }
+}
+
+export async function findUserByEmail(email: string) {
+  const database = await connect()
+  if (!database) return null
+  return database.collection('users').findOne({ email })
+}
+
+export async function findUserById(id: string) {
+  const database = await connect()
+  if (!database) return null
+  return database.collection('users').findOne({ id })
+}
+
+export async function updateUser(u: any) {
+  const database = await connect()
+  if (!database) return null
+  await database.collection('users').updateOne({ id: u.id }, { $set: { name: u.name, email: u.email, role: u.role, updated_at: new Date() } })
+  return database.collection('users').findOne({ id: u.id })
+}
+
+export async function listUsers() {
+  const database = await connect()
+  if (!database) return []
+  return database.collection('users').find().sort({ created_at: -1 }).toArray()
+}
+
+export async function listWorkers() {
+  const database = await connect()
+  if (!database) return []
+  return database.collection('users').find({ role: 'worker' }).sort({ created_at: -1 }).toArray()
+}
+
+// Verifications
+export async function createVerification({ id = uuid(), workerId, result }: any) {
+  const database = await connect()
+  if (!database) throw new Error('No MongoDB connection')
+  const doc = { id, worker_id: workerId, result, created_at: new Date() }
+  await database.collection('verifications').insertOne(doc)
+  return doc
+}
+
+export async function listVerifications(_filter: any = {}) {
+  const database = await connect()
+  if (!database) return []
+  return database.collection('verifications').find().sort({ created_at: -1 }).limit(100).toArray()
+}
+
+export async function safeList(collectionName: string) {
+  const database = await connect()
+  if (!database) return []
+  try {
+    return await database.collection(collectionName).find().limit(100).toArray()
+  } catch (e) {
+    return []
+  }
+}
+
+// Contracts
+export async function getAllContracts(filters: { workerId?: string; employerId?: string; status?: string } = {}) {
+  const database = await connect()
+  if (!database) return []
+  const q: any = {}
+  if (filters.workerId) q.worker_id = filters.workerId
+  if (filters.employerId) q.employer_id = filters.employerId
+  if (filters.status) q.status = filters.status
+  return database.collection('contracts').find(q).toArray()
+}
+
+export async function getDevicesByWorkerId(workerId: string) {
+  const database = await connect()
+  if (!database) return []
+  return database.collection('devices').find({ worker_id: workerId }).toArray()
+}
+
+export async function getAllTasks(filters: { workerId?: string; employerId?: string } = {}) {
+  const database = await connect()
+  if (!database) return []
+  const q: any = {}
+  if (filters.workerId) q.worker_id = filters.workerId
+  if (filters.employerId) q.employer_id = filters.employerId
+  return database.collection('tasks').find(q).toArray()
+}
+
+export async function getAllIncidents(filters: { workerId?: string; status?: string } = {}) {
+  const database = await connect()
+  if (!database) return []
+  const q: any = {}
+  if (filters.workerId) q.worker_id = filters.workerId
+  if (filters.status) q.status = filters.status
+  return database.collection('incidents').find(q).toArray()
+}
+
+export async function getEmployerById(employerId: string) {
+  const database = await connect()
+  if (!database) return null
+  return database.collection('employers').findOne({ employer_id: employerId })
+}
+
+export async function createAuditLog(logData: any) {
+  const database = await connect()
+  if (!database) return null
+  const id = uuid()
+  const doc = {
+    id,
+    actorId: logData.actorId,
+    actorName: logData.actorName,
+    actorRole: logData.actorRole,
+    action: logData.action,
+    resource: logData.resource,
+    resourceId: logData.resourceId,
+    details: logData.details || {},
+    ipAddress: logData.ipAddress || null,
+    userAgent: logData.userAgent || null,
+    timestamp: new Date(),
+  }
+  await database.collection('audit_logs').insertOne(doc)
+  return doc
+}
+
+export async function close() {
+  if (client) {
+    await client.close()
+    client = null
+    db = null
+  }
+}
