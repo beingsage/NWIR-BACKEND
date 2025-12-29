@@ -33,7 +33,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getWorkerById = exports.createAuditLog = exports.getEmployerById = exports.getAllIncidents = exports.getAllTasks = exports.getDevicesByWorkerId = exports.getAllContracts = exports.safeList = exports.listVerifications = exports.createVerification = exports.listWorkers = exports.listUsers = exports.findUserById = exports.findUserByEmail = exports.updateUser = exports.addUser = exports.initDb = void 0;
+exports.createCallLog = exports.findLastCallByPhone = exports.createCallHistory = exports.getWorkerById = exports.createAuditLog = exports.getEmployerById = exports.getAllIncidents = exports.getAllTasks = exports.getDevicesByWorkerId = exports.getAllContracts = exports.safeList = exports.listVerifications = exports.createVerification = exports.listWorkers = exports.listUsers = exports.findUserById = exports.findUserByEmail = exports.updateUser = exports.addUser = exports.initDb = void 0;
 // Database repository wrapper – delegates to real DB adapter.
 const db = __importStar(require("../db/index"));
 exports.initDb = db.initDb;
@@ -54,3 +54,7 @@ exports.getAllIncidents = db.getAllIncidents;
 exports.getEmployerById = db.getEmployerById;
 exports.createAuditLog = db.createAuditLog;
 exports.getWorkerById = db.findUserById; // alias for existing function
+// Call history helpers
+exports.createCallHistory = db.createCallHistory;
+exports.findLastCallByPhone = db.findLastCallByPhone;
+exports.createCallLog = db.createCallLog;

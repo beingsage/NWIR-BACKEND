@@ -33,7 +33,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getWorkerById = exports.createAuditLog = exports.getEmployerById = exports.getAllIncidents = exports.getAllTasks = exports.getDevicesByWorkerId = exports.getAllContracts = exports.safeList = exports.listVerifications = exports.createVerification = exports.listWorkers = exports.listUsers = exports.updateUser = exports.findUserById = exports.findUserByEmail = exports.createUser = exports.initDb = void 0;
+exports.createCallLog = exports.findLastCallByPhone = exports.createCallHistory = exports.getWorkerById = exports.createAuditLog = exports.getEmployerById = exports.getAllIncidents = exports.getAllTasks = exports.getDevicesByWorkerId = exports.getAllContracts = exports.safeList = exports.listVerifications = exports.createVerification = exports.listWorkers = exports.listUsers = exports.updateUser = exports.findUserById = exports.findUserByEmail = exports.createUser = exports.initDb = void 0;
 const mongo = __importStar(require("./mongo"));
 exports.initDb = mongo.initDb;
 exports.createUser = mongo.createUser;
@@ -52,3 +52,6 @@ exports.getAllIncidents = mongo.getAllIncidents;
 exports.getEmployerById = mongo.getEmployerById;
 exports.createAuditLog = mongo.createAuditLog;
 exports.getWorkerById = mongo.findUserById; // alias
+exports.createCallHistory = mongo.createCallHistory;
+exports.findLastCallByPhone = mongo.findLastCallByPhone;
+exports.createCallLog = mongo.createCallLog;

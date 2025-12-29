@@ -16,3 +16,6 @@ export declare const getAllIncidents: typeof mongo.getAllIncidents;
 export declare const getEmployerById: typeof mongo.getEmployerById;
 export declare const createAuditLog: typeof mongo.createAuditLog;
 export declare const getWorkerById: typeof mongo.findUserById;
+export declare const createCallHistory: typeof mongo.createCallHistory;
+export declare const findLastCallByPhone: typeof mongo.findLastCallByPhone;
+export declare const createCallLog: typeof mongo.createCallLog;

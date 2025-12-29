@@ -1,6 +1,35 @@
 import { Db } from 'mongodb';
 export declare function connect(): Promise<Db | null>;
 export declare function initDb(): Promise<void>;
+export declare function createCallHistory({ phone, inferredLocation, timestamp }: any): Promise<{
+    phone: any;
+    inferred_location: any;
+    timestamp: any;
+}>;
+export declare function findLastCallByPhone(phone: string): Promise<import("mongodb").WithId<import("bson").Document> | null>;
+export declare function createCallLog({ phone, to, callSid, direction, body, timestamp }: any): Promise<{
+    phone: any;
+    to: any;
+    call_sid: any;
+    direction: any;
+    body: any;
+    timestamp: any;
+}>;
+export declare function createWhatsappMessage({ phone, type, content, timestamp }: any): Promise<{
+    phone: any;
+    type: any;
+    content: any;
+    timestamp: any;
+}>;
+export declare function upsertWhatsappContact({ phone, name, lastLocation, updatedAt }: any): Promise<import("mongodb").WithId<import("bson").Document> | null>;
+export declare function findWhatsappContactByPhone(phone: string): Promise<import("mongodb").WithId<import("bson").Document> | null>;
+export declare function createIncident({ id, workerId, status, createdAt, details }: any): Promise<{
+    id: any;
+    worker_id: any;
+    status: any;
+    details: any;
+    created_at: any;
+}>;
 export declare function createUser({ id, name, email, passwordHash, role }: any): Promise<{
     id: any;
     name: any;

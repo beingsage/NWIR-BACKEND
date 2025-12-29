@@ -24,3 +24,11 @@ export const getWorkerById = mongo.findUserById // alias
 export const createCallHistory = mongo.createCallHistory
 export const findLastCallByPhone = mongo.findLastCallByPhone
 export const createCallLog = mongo.createCallLog
+
+// WhatsApp helpers
+export const createWhatsappMessage = mongo.createWhatsappMessage
+export const upsertWhatsappContact = mongo.upsertWhatsappContact
+export const findWhatsappContactByPhone = mongo.findWhatsappContactByPhone
+export const createIncident = mongo.createIncident
+export const findOpenIncidentByWorkerId = mongo.findOpenIncidentByWorkerId
+export const updateIncident = mongo.updateIncident

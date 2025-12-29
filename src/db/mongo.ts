@@ -91,6 +91,19 @@ export async function createIncident({ id = uuid(), workerId, status = 'open', c
   return doc
 }
 
+export async function findOpenIncidentByWorkerId(workerId: string) {
+  const database = await connect()
+  if (!database) return null
+  return database.collection('incidents').findOne({ worker_id: workerId, status: 'open' })
+}
+
+export async function updateIncident(id: string, update: any) {
+  const database = await connect()
+  if (!database) throw new Error('No MongoDB connection')
+  await database.collection('incidents').updateOne({ id }, { $set: update })
+  return database.collection('incidents').findOne({ id })
+}
+
 // Users
 export async function createUser({ id = uuid(), name, email, passwordHash, role = 'worker' }: any) {
   const database = await connect()

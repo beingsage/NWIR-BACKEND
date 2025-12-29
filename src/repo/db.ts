@@ -24,3 +24,10 @@ export const getWorkerById = db.findUserById // alias for existing function
 export const createCallHistory = db.createCallHistory
 export const findLastCallByPhone = db.findLastCallByPhone
 export const createCallLog = db.createCallLog
+// WhatsApp helpers
+export const createWhatsappMessage = db.createWhatsappMessage
+export const upsertWhatsappContact = db.upsertWhatsappContact
+export const findWhatsappContactByPhone = db.findWhatsappContactByPhone
+export const createIncident = db.createIncident
+export const findOpenIncidentByWorkerId = db.findOpenIncidentByWorkerId
+export const updateIncident = db.updateIncident

@@ -15,3 +15,6 @@ export declare const getAllIncidents: typeof import("../db/mongo").getAllInciden
 export declare const getEmployerById: typeof import("../db/mongo").getEmployerById;
 export declare const createAuditLog: typeof import("../db/mongo").createAuditLog;
 export declare const getWorkerById: typeof import("../db/mongo").findUserById;
+export declare const createCallHistory: typeof import("../db/mongo").createCallHistory;
+export declare const findLastCallByPhone: typeof import("../db/mongo").findLastCallByPhone;
+export declare const createCallLog: typeof import("../db/mongo").createCallLog;

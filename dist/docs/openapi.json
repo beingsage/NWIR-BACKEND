@@ -1,0 +1,33 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "NWIR Backend API",
+    "version": "0.1.0",
+    "description": "Minimal OpenAPI description for development/testing."
+  },
+  "servers": [
+    { "url": "http://localhost:4000" }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health check",
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/whatsapp": {
+      "get": { "summary": "WhatsApp webhook verification", "responses": { "200": { "description": "challenge" } } },
+      "post": { "summary": "WhatsApp webhook receiver", "responses": { "200": { "description": "accepted" } } }
+    },
+    "/api/auth/login": {
+      "post": { "summary": "Login (email + password)", "responses": { "200": { "description": "token" } } }
+    },
+    "/api/users": {
+      "get": { "summary": "List users (protected)", "responses": { "200": { "description": "users" } } },
+      "post": { "summary": "Create user (protected)", "responses": { "201": { "description": "created" } } }
+    },
+    "/twilio/incoming": {
+      "post": { "summary": "Twilio incoming webhook (calls)", "responses": { "200": { "description": "ok" } } }
+    }
+  }
+}

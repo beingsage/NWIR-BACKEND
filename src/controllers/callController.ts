@@ -50,7 +50,74 @@ export async function incomingSms(req: Request, res: Response) {
   })()
 
   const msg = new MessagingResponse()
-  msg.message(`Estimated: ${inference.estimated_location}. Confidence: ${Math.round(inference.confidence * 100)}%. Sources: ${Object.keys(inference.sources).join(', ')}`)
+  // Handle help/SOS keyword and location messages (Twilio WhatsApp may include Latitude/Longitude)
+  const text = (body || '').trim()
+  const lat = req.body.Latitude as string | undefined
+  const lon = req.body.Longitude as string | undefined
+
+  if (/^(sos|help)$/i.test(text)) {
+    // Create an incident and ask user to share live location
+    ;(async () => {
+      try {
+        const db = await import('../repo/db')
+        if (db && db.createIncident) {
+          await db.createIncident({ workerId: from, status: 'open', details: { via: 'sms' } })
+        }
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.warn('Failed to create incident:', (e as Error).message)
+      }
+    })()
+
+    msg.message(
+      "We've received your request for help. Please share your live location: open the attachment (paperclip) and choose 'Location' → 'Share live location'. Reply with 'STOP' to cancel."
+    )
+  } else if (/^stop$/i.test(text)) {
+    // Cancel any open incident for this phone
+    ;(async () => {
+      try {
+        const db = await import('../repo/db')
+        if (db && db.findOpenIncidentByWorkerId) {
+          const incident = await db.findOpenIncidentByWorkerId(from!)
+          if (incident && db.updateIncident) {
+            await db.updateIncident(incident.id, { status: 'cancelled' })
+          }
+        }
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.warn('Failed to cancel incident:', (e as Error).message)
+      }
+    })()
+
+    msg.message('Tracking stopped. If you need help again, reply SOS.')
+  } else if (lat && lon) {
+    // Log the supplied location and confirm
+    ;(async () => {
+      try {
+        const db = await import('../repo/db')
+        if (db && db.upsertWhatsappContact) {
+          await db.upsertWhatsappContact({ phone: from, lastLocation: { lat: parseFloat(lat), lng: parseFloat(lon) }, updatedAt: new Date() })
+        }
+        if (db && db.createWhatsappMessage) {
+          await db.createWhatsappMessage({ phone: from, type: 'location', content: { latitude: parseFloat(lat), longitude: parseFloat(lon) }, timestamp: new Date() })
+        }
+        // If there's an open incident for this phone, update it with location details
+        if (db && db.findOpenIncidentByWorkerId) {
+          const incident = await db.findOpenIncidentByWorkerId(from!)
+          if (incident && db.updateIncident) {
+            await db.updateIncident(incident.id, { status: 'location_received', details: { ...(incident.details || {}), location: { lat: parseFloat(lat), lng: parseFloat(lon) } } })
+          }
+        }
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.warn('Failed to persist WhatsApp location:', (e as Error).message)
+      }
+    })()
+
+    msg.message('Location received and logged. Help will be dispatched if you requested assistance.')
+  } else {
+    msg.message(`Estimated: ${inference.estimated_location}. Confidence: ${Math.round(inference.confidence * 100)}%. Sources: ${Object.keys(inference.sources).join(', ')}`)
+  }
 
   res.type('text/xml')
   res.send(msg.toString())
