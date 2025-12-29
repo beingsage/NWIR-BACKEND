@@ -9,7 +9,8 @@
     "test:watch": "jest --watch",
     "migrate": "ts-node scripts/migrate.ts",
     "seed": "ts-node scripts/seed.ts",
-    "build": "tsc -p ."
+    "build": "tsc -p .",
+    "postbuild": "cp -R src/docs dist/docs || true"
   },
   "dependencies": {
     "swagger-ui-express": "^4.6.3",
